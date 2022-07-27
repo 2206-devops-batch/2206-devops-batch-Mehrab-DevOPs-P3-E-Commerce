@@ -1,0 +1,9 @@
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/revature-rss-mehrab-1380/e-commerce-frontend
+[submodule "backend"]
+	path = backend
+	url = https://github.com/revature-rss-mehrab-1380/e-commerce-backend
+[submodule "Wiki"]
+	path = Wiki
+	url = https://github.com/2206-devops-batch/P3-E-Commerce.wiki.git
