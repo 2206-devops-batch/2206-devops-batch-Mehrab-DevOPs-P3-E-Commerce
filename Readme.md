@@ -203,7 +203,7 @@ kubectl create namespace jenkins
 
 helm repo add jenkins https://charts.jenkins.io
 helm repo update
-helm upgrade --install jenkins jenkins/jenkins
+helm upgrade --install jenkins jenkins/jenkins -f jenkins-values.yaml
 
 kubectl exec --namespace jenkins -it svc/jenkins -c jenkins -- /bin/cat /run/secrets/additional/chart-admin-password && echo
 
@@ -220,7 +220,7 @@ echo http://127.0.0.1:8080 && kubectl --namespace jenkins port-forward svc/jenki
 >
 > docker build -t backend:latest .
 >
-> docker run -d -p 5000:5000 -e DB_PLATFORM="org.hibernate.dialect.H2Dialect" -e DB_URL="jdbc:h2:mem:test;MODE=PostgresSQL" -e DB_DRIVER="org.h2.Driver" backend:latest
+> docker run -d -p 5000:5000 -e DB_PLATFORM="org.hibernate.dialect.H2Dialect" -e DB_URL="jdbc:h2:mem:test;MODE=PostgreSQL" -e DB_DRIVER="org.h2.Driver" backend:latest
 
 # Frontend
 
