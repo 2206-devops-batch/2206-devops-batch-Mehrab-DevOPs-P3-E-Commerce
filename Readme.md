@@ -12,7 +12,7 @@
     Run "aws eks --region us-east-1 update-kubeconfig --name YOUR_PROFILE_HERE --profile YOUR_PROFILE_HERE"
 -->
 
-Create an AWS EKS cluster with [Terrform]()
+Create an AWS EKS cluster with [Terrform](https://learn.hashicorp.com/terraform?utm_source=terraform_io)
 
 ```zsh
 cd terraform
@@ -44,7 +44,19 @@ monitoring-worker2         Ready    <none>                 38s   v1.23.1
 monitoring-worker3         Ready    <none>                 38s   v1.23.1
 ```
 
-### Kube Prometheus
+<!--
+## Loki-Prometheus-Stack
+
+```zsh
+kubectl create namespace monitoring
+helm upgrade --install -n monitoring loki-stuff grafana/loki-stack --set grafana.enabled=true,prometheus.enabled=true
+kubectl get secret -n monitoring loki-stuff-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+kubectl port-forward -n monitoring service/loki-stuff-grafana 3000:80
+#kubectl -n monitoring port-forward svc/prometheus-operated 9090
+```
+-->
+
+## Kube Prometheus
 
 The best method for monitoring, is to use the community manifests on the `kube-prometheus`
 repository [here](https://github.com/prometheus-operator/kube-prometheus)
@@ -75,7 +87,7 @@ ls /tmp/manifests -l
 cp -R /tmp/manifests .
 ```
 
-### Prometheus Operator
+## Prometheus Operator
 
 To deploy all these manifests, we will need to setup the prometheus operator and custom resource definitions required.
 
@@ -91,7 +103,7 @@ Now that we have the source code manifests, we can exit our temporary container
 exit
 ```
 
-### Setup Custom Resource Definition (CRDs)
+## Setup Custom Resource Definition (CRDs)
 
 Let's create the CRD's and prometheus operator
 
@@ -99,7 +111,7 @@ Let's create the CRD's and prometheus operator
 kubectl create -f ./manifests/setup/
 ```
 
-### Setup Manifests
+## Setup Manifests
 
 Apply rest of manifests
 
@@ -107,7 +119,7 @@ Apply rest of manifests
 kubectl create -f ./manifests/
 ```
 
-### Check Monitoring
+## Check Monitoring
 
 ```zsh
 kubectl -n monitoring get pods
@@ -130,7 +142,7 @@ prometheus-k8s-1                       2/2     Running   0          26m
 prometheus-operator-6dc9f66cb7-8bg77   2/2     Running   0          27m
 ```
 
-### Check Prometheus
+## Check Prometheus
 
 Similar to checking Grafana, we can also check Prometheus:
 
@@ -138,7 +150,7 @@ Similar to checking Grafana, we can also check Prometheus:
 kubectl -n monitoring port-forward svc/prometheus-operated 9090
 ```
 
-### View Grafana Dashboards
+## View Grafana Dashboards
 
 You can access the dashboards by using `port-forward` to access Grafana.
 It does not have a public endpoint for security reasons
@@ -149,7 +161,7 @@ kubectl -n monitoring port-forward svc/grafana 3000
 
 Then access Grafana on [localhost:3000](http://localhost:3000/)
 
-#### Fix Grafana Datasource (If Needed)
+### Fix Grafana Datasource (If Needed)
 
 Now for some reason, the Prometheus data source in Grafana does not work out the box. \
 To fix it, we need to change the service endpoint of the data source.
@@ -166,7 +178,7 @@ kubectl -n monitoring port-forward svc/grafana 3000
 
 Now our datasource should be healthy.
 
-### Check Service Monitors
+## Check Service Monitors
 
 To see how Prometheus is configured on what to scrape , we list service monitors
 
@@ -212,35 +224,47 @@ echo http://127.0.0.1:8080 && kubectl --namespace jenkins port-forward svc/jenki
 
 # Preferend run Localy
 
-> docker-compose up --build
+```zsh
+docker-compose up --build
+```
 
-# Backendend
+## Backendend
 
-> cd backend
->
-> docker build -t backend:latest .
->
-> docker run -d -p 5000:5000 -e DB_PLATFORM="org.hibernate.dialect.H2Dialect" -e DB_URL="jdbc:h2:mem:test;MODE=PostgreSQL" -e DB_DRIVER="org.h2.Driver" backend:latest
+```zsh
+cd backend
+docker build -t backend:latest .
+docker run -d -p 5000:5000 -e DB_PLATFORM="org.hibernate.dialect.H2Dialect" -e DB_URL="jdbc:h2:mem:test;MODE=PostgreSQL" -e DB_DRIVER="org.h2.Driver" backend:latest
+```
 
-# Frontend
+## Frontend
 
-> cd frontend
+```zsh
+cd frontend
+docker build -t frontend:latest .
+```
+
 >
-> docker build -t frontend:latest .
->
-> docker run -d -p 3000:80 frontend:latest
+
+```zsh
+docker run -d -p 3000:80 frontend:latest
+```
 
 Now go to your browser and open: <http://localhost:3000/>
 
-<!-- ## Prepare your enviornment
+<!--
+## Prepare your enviornment
 
 in the project back end directory, enter the command
 
-> `mvn install`
+```zsh
+mvn install
+```
 
 Then, navagate into the `target` directory, and run the command:
 
-> `mvn spring-boot:run`
+```zsh
+mvn spring-boot:run
+```
 
 which will run the Spring enviornment
 
@@ -250,67 +274,15 @@ The enviornment will be limited to the test data contained in this source code.
 
 To run the front end, navigate to its directory and run the command:
 
-> `npm install`
+```zsh
+npm install
+```
 
 After that, running the command:
 
-> `npm start`
-
-within the directory will open the application in your browser. -->
-
-<!--
-```dockerfile
-# pull official base image
-FROM python:3.8.0-alpine
-
-# set work directory
-WORKDIR /usr/src
-
-# set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
-# install psycopg2 dependencies
-RUN apk update \
-    && apk add postgresql-dev gcc python3-dev musl-dev
-
-# install dependencies
-RUN pip install --upgrade pip
-COPY ./requirements.txt /usr/src/requirements.txt
-RUN pip install -r requirements.txt
-
-# copy entrypoint.sh
-# COPY ./entrypoint.sh /usr/src/entrypoint.sh
-
-# copy project
-COPY . /usr/src/
-
-# run entrypoint.sh
-ENTRYPOINT ["/usr/src/entrypoint.sh"]
+```zsh
+npm start
 ```
 
-```entrypoint.sh
-#!/bin/sh
-
-if [ "$DATABASE" = "postgres" ]
-then
-    echo "Waiting for postgres..."
-
-    while ! nc -z $SQL_HOST $SQL_PORT; do
-      sleep 0.1
-    done
-
-    echo "PostgreSQL started"
-fi
-
-python manage.py flush --no-input
-python manage.py migrate
-python manage.py collectstatic --no-input
-#  --clear
-
-# For Production:
-gunicorn project.wsgi --reload --workers=2 --threads=4 --worker-tmp-dir=/dev/shm --bind=0.0.0.0:8000 --log-file=- --worker-class=gthread
-
-exec "$@"
-```
+within the directory will open the application in your browser.
 -->
