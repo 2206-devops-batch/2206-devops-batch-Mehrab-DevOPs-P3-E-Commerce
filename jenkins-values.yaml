@@ -2,6 +2,5 @@ controller:
   serviceType: LoadBalancer
   additionalPlugins:
     - prometheus:2.0.11
-    - kubernetes:3670.v6ca_059233222
     - discord-notifier:206.vee9f4569ee63
     - cloudbees-disk-usage-simple:170.va_fd5b_4ee6858
