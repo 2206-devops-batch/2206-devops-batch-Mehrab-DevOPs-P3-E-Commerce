@@ -210,6 +210,10 @@ kubectl exec --namespace jenkins -it svc/jenkins -c jenkins -- /bin/cat /run/sec
 echo http://127.0.0.1:8080 && kubectl --namespace jenkins port-forward svc/jenkins 8080:8080
 ```
 
+# Preferend run Localy
+
+> docker-compose up --build
+
 # Backendend
 
 > cd backend
@@ -253,3 +257,60 @@ After that, running the command:
 > `npm start`
 
 within the directory will open the application in your browser. -->
+
+<!--
+```dockerfile
+# pull official base image
+FROM python:3.8.0-alpine
+
+# set work directory
+WORKDIR /usr/src
+
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# install psycopg2 dependencies
+RUN apk update \
+    && apk add postgresql-dev gcc python3-dev musl-dev
+
+# install dependencies
+RUN pip install --upgrade pip
+COPY ./requirements.txt /usr/src/requirements.txt
+RUN pip install -r requirements.txt
+
+# copy entrypoint.sh
+# COPY ./entrypoint.sh /usr/src/entrypoint.sh
+
+# copy project
+COPY . /usr/src/
+
+# run entrypoint.sh
+ENTRYPOINT ["/usr/src/entrypoint.sh"]
+```
+
+```entrypoint.sh
+#!/bin/sh
+
+if [ "$DATABASE" = "postgres" ]
+then
+    echo "Waiting for postgres..."
+
+    while ! nc -z $SQL_HOST $SQL_PORT; do
+      sleep 0.1
+    done
+
+    echo "PostgreSQL started"
+fi
+
+python manage.py flush --no-input
+python manage.py migrate
+python manage.py collectstatic --no-input
+#  --clear
+
+# For Production:
+gunicorn project.wsgi --reload --workers=2 --threads=4 --worker-tmp-dir=/dev/shm --bind=0.0.0.0:8000 --log-file=- --worker-class=gthread
+
+exec "$@"
+```
+-->
