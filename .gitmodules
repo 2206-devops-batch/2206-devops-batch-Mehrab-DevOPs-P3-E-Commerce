@@ -7,3 +7,6 @@
 [submodule "Wiki"]
 	path = Wiki
 	url = https://github.com/2206-devops-batch/P3-E-Commerce.wiki.git
+[submodule "terraform"]
+	path = terraform
+	url = https://github.com/2206-devops-batch/BEEJ_Terraform_Project-3.git

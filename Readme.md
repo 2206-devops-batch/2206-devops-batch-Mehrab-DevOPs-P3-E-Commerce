@@ -1,8 +1,31 @@
 # Mehrab-DevOPs-P3-E-Commerce
 
-# Local Dev
+## Production / Cloud Dev
 
-Create a cluster with [kind](https://kind.sigs.k8s.io/docs/user/quick-start/)
+<!--
+    Please follow the below instructions in order to access the cluster.
+    Run "aws configure --profile YOUR_PROFILE_HERE"
+    Use "YOUR_ACCESS_KEY_HERE" as the Access Key ID
+    Use "YOUR_SECRET_KEY_HERE" as the Secret Access Key (sensitive - do not upload to git or any version control of any form)
+    Use "us-east-1" as the region
+    Output format does not matter - You may leave blank
+    Run "aws eks --region us-east-1 update-kubeconfig --name YOUR_PROFILE_HERE --profile YOUR_PROFILE_HERE"
+-->
+
+Create an AWS EKS cluster with [Terrform]()
+
+```zsh
+cd terraform
+
+terraform init
+terraform apply
+Then type yes
+you can use terraform plan to see the changes being made before running apply
+```
+
+## Local Dev
+
+Create a cluster with [Kind](https://kind.sigs.k8s.io/docs/user/quick-start/)
 
 ```zsh
 cd local-dev
@@ -21,7 +44,7 @@ monitoring-worker2         Ready    <none>                 38s   v1.23.1
 monitoring-worker3         Ready    <none>                 38s   v1.23.1
 ```
 
-# Kube Prometheus
+### Kube Prometheus
 
 The best method for monitoring, is to use the community manifests on the `kube-prometheus`
 repository [here](https://github.com/prometheus-operator/kube-prometheus)
@@ -52,7 +75,7 @@ ls /tmp/manifests -l
 cp -R /tmp/manifests .
 ```
 
-## Prometheus Operator
+### Prometheus Operator
 
 To deploy all these manifests, we will need to setup the prometheus operator and custom resource definitions required.
 
@@ -68,7 +91,7 @@ Now that we have the source code manifests, we can exit our temporary container
 exit
 ```
 
-# Setup CRDs
+### Setup Custom Resource Definition (CRDs)
 
 Let's create the CRD's and prometheus operator
 
@@ -76,7 +99,7 @@ Let's create the CRD's and prometheus operator
 kubectl create -f ./manifests/setup/
 ```
 
-# Setup Manifests
+### Setup Manifests
 
 Apply rest of manifests
 
@@ -84,7 +107,7 @@ Apply rest of manifests
 kubectl create -f ./manifests/
 ```
 
-# Check Monitoring
+### Check Monitoring
 
 ```zsh
 kubectl -n monitoring get pods
@@ -107,7 +130,7 @@ prometheus-k8s-1                       2/2     Running   0          26m
 prometheus-operator-6dc9f66cb7-8bg77   2/2     Running   0          27m
 ```
 
-## Check Prometheus
+### Check Prometheus
 
 Similar to checking Grafana, we can also check Prometheus:
 
@@ -115,7 +138,7 @@ Similar to checking Grafana, we can also check Prometheus:
 kubectl -n monitoring port-forward svc/prometheus-operated 9090
 ```
 
-# View Grafana Dashboards
+### View Grafana Dashboards
 
 You can access the dashboards by using `port-forward` to access Grafana.
 It does not have a public endpoint for security reasons
@@ -126,12 +149,12 @@ kubectl -n monitoring port-forward svc/grafana 3000
 
 Then access Grafana on [localhost:3000](http://localhost:3000/)
 
-## Fix Grafana Datasource (If Needed)
+#### Fix Grafana Datasource (If Needed)
 
-Now for some reason, the Prometheus data source in Grafana does not work out the box.
-To fix it, we need to change the service endpoint of the data source. </br>
+Now for some reason, the Prometheus data source in Grafana does not work out the box. \
+To fix it, we need to change the service endpoint of the data source.
 
-To do this, edit `manifests/grafana-dashboardDatasources.yaml` and replace the datasource url endpoint with `http://prometheus-operated.monitoring.svc:9090` </br>
+To do this, edit `manifests/grafana-dashboardDatasources.yaml` and replace the datasource url endpoint with `http://prometheus-operated.monitoring.svc:9090`
 
 We'll need to patch that and restart Grafana
 
@@ -143,7 +166,7 @@ kubectl -n monitoring port-forward svc/grafana 3000
 
 Now our datasource should be healthy.
 
-## Check Service Monitors
+### Check Service Monitors
 
 To see how Prometheus is configured on what to scrape , we list service monitors
 
