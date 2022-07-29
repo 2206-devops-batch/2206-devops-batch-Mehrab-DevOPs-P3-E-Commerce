@@ -1,34 +1,32 @@
 version: '3.7'
 
 services:
-  premade:
-    image: murryf/e-commerce
   backend:
     build: ./backend
-    image: chrisbarnes2000/e-commerce-backend
-    command: mvn install && cd target && mvn spring-boot:run
+    image: chrisbarnes2000/e-commerce-backend # elrintowser/p3-backend # othom/e-commerce-backend-blue:latest
+    command: docker run -d -p 5000:5000 -e DB_PLATFORM="org.hibernate.dialect.H2Dialect" -e DB_URL="jdbc:h2:mem:test;MODE=PostgreSQL" -e DB_DRIVER="org.h2.Driver" chrisbarnes2000/e-commerce-backend:latest
+    # command: ./backend/updateBackEndDockerImage.sh
     volumes:
       - ./backend:/usr/src/app/backend
     ports:
       - 5000:5000
     env_file:
       - ./.env
-    depends_on:
-      - database
+    # depends_on:
+    #   - database
   frontend:
     build: .
-    image: chrisbarnes2000/e-commerce-frontend
-    command: npm install && npm start
+    image: chrisbarnes2000/e-commerce-frontend # murryf/e-commerce # othom/e-commerce-frontend-blue:153  # latest
     volumes:
       - ./frontend:/usr/src/app/frontend
     ports:
       - 3000:80
-  database:
-    image: postgres:12.0-alpine
-    volumes:
-      - postgres_dev_data:/var/lib/postgresql/data/
-    environment:
-      - ./.env-db
+#   database:
+#     image: postgres:12.0-alpine
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data/
+#     environment:
+#       - ./.env-db
 
-volumes:
-  postgres_dev_data:
+# volumes:
+#   postgres_data:
