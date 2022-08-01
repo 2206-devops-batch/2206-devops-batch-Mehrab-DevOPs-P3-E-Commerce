@@ -217,9 +217,9 @@ helm repo add jenkins https://charts.jenkins.io
 helm repo update
 helm upgrade --install jenkins jenkins/jenkins -f jenkins-values.yaml
 
-kubectl exec --namespace jenkins -it svc/jenkins -c jenkins -- /bin/cat /run/secrets/additional/chart-admin-password && echo
+kubectl exec -n jenkins -it svc/jenkins -c jenkins -- /bin/cat /run/secrets/additional/chart-admin-password && echo
 
-echo http://127.0.0.1:8080 && kubectl --namespace jenkins port-forward svc/jenkins 8080:8080
+echo http://127.0.0.1:8080 && kubectl -n jenkins port-forward svc/jenkins 8080:8080
 ```
 
 # Preferend run Localy
@@ -286,3 +286,16 @@ npm start
 
 within the directory will open the application in your browser.
 -->
+
+## Dashboard / Port-forward Links
+
+kubectl -n jenkins port-forward svc/jenkins 8080
+kubectl -n monitoring port-forward svc/prometheus-operated 9090
+kubectl -n monitoring port-forward svc/grafana 3000
+
+<!-- Group Jenkins: http://a0d6fe85610ff47b1b2ce72632f54562-583820029.us-east-1.elb.amazonaws.com:8080 -->
+<!-- Hosted Backend: http://ab42a3a26fe6e4acb815e33f31a37a6d-707570840.us-east-1.elb.amazonaws.com:5000 -->
+<!-- Hosted Frontend: http://a7f6fb624db474b70b28ef9de67d91cf-154436653.us-east-1.elb.amazonaws.com:3000 -->
+
+<!-- frontend/src/remote/e-commerce-api/eCommerceClient.ts#L18 -->
+<!-- https://vscode.dev/github/revature-rss-mehrab-1380/e-commerce-frontend/blob/10e2bc9e3dddbf77861c15a9cdbab2185083da9b/src/remote/e-commerce-api/eCommerceClient.ts#L18 -->
