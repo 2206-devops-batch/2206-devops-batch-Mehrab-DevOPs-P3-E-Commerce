@@ -11,7 +11,7 @@ on:
 
 defaults:
   run:
-    working-directory: ./app
+    working-directory: ./backend
 
 env:
   ECR_REPOSITORY: rss-backend # set this to your Amazon ECR repository name
@@ -46,7 +46,6 @@ jobs:
 
       - name: Stage JAR
         run: mkdir staging && cp target/*.jar staging
-
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
